@@ -1,0 +1,9 @@
+<!-- Confirmed Email Page -->
+<!DOCTYPE html>
+<html>
+<body style="background-color: black; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+    <img src="waverlogo.png" alt="Waver" width="200" height="200">
+    <h1 style="color: white; margin-top: 20px;">Your email has been confirmed!</h1>
+    <p style="color: white; text-align: center; max-width: 400px;">You can now start using Waver.</p>
+</body>
+</html>
