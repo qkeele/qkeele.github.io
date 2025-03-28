@@ -14,32 +14,42 @@
   <!-- Waver Logo -->
   <img src="waverlogo.png" alt="Waver" width="200" height="200" style="margin-bottom: 20px;">
 
-  <!-- Password Input -->
-  <input type="password" id="newPassword" placeholder="New Password" style="padding: 10px; font-size: 16px; width: 80%; max-width: 300px; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;">
+  <div id="form-container" style="display: flex; flex-direction: column; align-items: center; width: 80%; max-width: 300px;">
+    <input type="password" id="password1" placeholder="New Password" style="padding: 10px; font-size: 16px; width: 100%; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;">
+    <input type="password" id="password2" placeholder="Confirm New Password" style="padding: 10px; font-size: 16px; width: 100%; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;">
+    <button onclick="resetPassword()" style="padding: 12px 20px; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;">
+      Update Password
+    </button>
+  </div>
 
-  <!-- Submit Button -->
-  <button onclick="resetPassword()" style="padding: 12px 20px; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;">
-    Update Password
-  </button>
-
-  <!-- Status Message -->
   <p id="status" style="margin-top: 20px; color: #10b981;"></p>
   <p id="error" style="margin-top: 10px; color: #ef4444;"></p>
 
   <script>
     const supabase = supabase.createClient(
-      'https://YOUR_PROJECT_ID.supabase.co',
-      'YOUR_PUBLIC_ANON_KEY'
+      'https://vfpcqlulhiwqjnwfxjof.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcGNxbHVsaGl3cWpud2Z4am9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDEzNjMsImV4cCI6MjA1NTAxNzM2M30.wvRniBlP_Ucn_rQ0fEid_YiT4VHf106zFbBu3wCIg-o'
     );
 
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = hashParams.get('access_token');
 
     async function resetPassword() {
-      const newPassword = document.getElementById('newPassword').value;
+      const p1 = document.getElementById('password1').value;
+      const p2 = document.getElementById('password2').value;
 
-      if (!accessToken || !newPassword) {
-        document.getElementById('error').textContent = 'Missing access token or password.';
+      if (!accessToken) {
+        document.getElementById('error').textContent = 'Missing access token.';
+        return;
+      }
+
+      if (!p1 || !p2) {
+        document.getElementById('error').textContent = 'Please enter both password fields.';
+        return;
+      }
+
+      if (p1 !== p2) {
+        document.getElementById('error').textContent = 'Passwords do not match.';
         return;
       }
 
@@ -53,14 +63,16 @@
         return;
       }
 
-      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      const { error: updateError } = await supabase.auth.updateUser({ password: p1 });
 
       if (updateError) {
         document.getElementById('error').textContent = updateError.message;
       } else {
-        document.getElementById('status').textContent = 'Password successfully updated!';
+        document.getElementById('form-container').style.display = 'none';
+        document.getElementById('status').textContent = 'Password successfully updated. You can now log in.';
       }
     }
   </script>
 </body>
 </html>
+
