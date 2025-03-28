@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reset Password – Waver</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  </head>
+  <body style="background-color: black; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; color: white; font-family: Arial, sans-serif;">
+
+    <div style="position: absolute; top: 20px; width: 100%; text-align: center;">
+      <h1 style="margin: 0;">Reset Your Password</h1>
+    </div>
+
+    <!-- Waver Logo -->
+    <img src="waverlogo.png" alt="Waver" width="200" height="200" style="margin-bottom: 20px;">
+
+    <!-- Password Input -->
+    <input type="password" id="newPassword" placeholder="New Password" style="padding: 10px; font-size: 16px; width: 80%; max-width: 300px; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;">
+
+    <!-- Submit Button -->
+    <button onclick="resetPassword()" style="padding: 12px 20px; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;">
+      Update Password
+    </button>
+
+    <!-- Status Message -->
+    <p id="status" style="margin-top: 20px; color: #10b981;"></p>
+    <p id="error" style="margin-top: 10px; color: #ef4444;"></p>
+
+    <!-- App Store Link -->
+    <a href="https://apps.apple.com/us/app/waver/id6451123031?platform=iphone" target="_blank" style="margin-top: 40px;">
+      <img src="appstore.png" alt="Download on the App Store" width="250" height="85">
+    </a>
+
+    <script>
+      const supabase = supabase.createClient(
+        'https://YOUR_PROJECT_ID.supabase.co',
+        'YOUR_PUBLIC_ANON_KEY'
+      );
+
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+
+      async function resetPassword() {
+        const newPassword = document.getElementById('newPassword').value;
+
+        if (!accessToken || !newPassword) {
+          document.getElementById('error').textContent = 'Missing access token or password.';
+          return;
+        }
+
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: ''
+        });
+
+        if (sessionError) {
+          document.getElementById('error').textContent = sessionError.message;
+          return;
+        }
+
+        const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+
+        if (updateError) {
+          document.getElementById('error').textContent = updateError.message;
+        } else {
+          document.getElementById('status').textContent = 'Password successfully updated!';
+        }
+      }
+    </script>
+  </body>
+</html>
