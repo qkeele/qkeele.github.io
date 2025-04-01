@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Reset Password – Waver</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body style="background-color: black; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; color: white; font-family: Arial, sans-serif;">
@@ -25,53 +26,56 @@
   <p id="status" style="margin-top: 20px; color: #10b981;"></p>
   <p id="error" style="margin-top: 10px; color: #ef4444;"></p>
 
+  <!-- Make sure Supabase is loaded before using it -->
   <script>
-    const supabase = supabase.createClient(
-      'https://vfpcqlulhiwqjnwfxjof.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcGNxbHVsaGl3cWpud2Z4am9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDEzNjMsImV4cCI6MjA1NTAxNzM2M30.wvRniBlP_Ucn_rQ0fEid_YiT4VHf106zFbBu3wCIg-o'
-    );
+    document.addEventListener('DOMContentLoaded', () => {
+      const supabase = supabase.createClient(
+        'https://vfpcqlulhiwqjnwfxjof.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcGNxbHVsaGl3cWpud2Z4am9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDEzNjMsImV4cCI6MjA1NTAxNzM2M30.wvRniBlP_Ucn_rQ0fEid_YiT4VHf106zFbBu3wCIg-o'
+      );
 
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
 
-    async function resetPassword() {
-      const p1 = document.getElementById('password1').value;
-      const p2 = document.getElementById('password2').value;
+      window.resetPassword = async function () {
+        const p1 = document.getElementById('password1').value;
+        const p2 = document.getElementById('password2').value;
 
-      if (!accessToken) {
-        document.getElementById('error').textContent = 'Missing access token.';
-        return;
-      }
+        if (!accessToken) {
+          document.getElementById('error').textContent = 'Missing access token.';
+          return;
+        }
 
-      if (!p1 || !p2) {
-        document.getElementById('error').textContent = 'Please enter both password fields.';
-        return;
-      }
+        if (!p1 || !p2) {
+          document.getElementById('error').textContent = 'Please enter both password fields.';
+          return;
+        }
 
-      if (p1 !== p2) {
-        document.getElementById('error').textContent = 'Passwords do not match.';
-        return;
-      }
+        if (p1 !== p2) {
+          document.getElementById('error').textContent = 'Passwords do not match.';
+          return;
+        }
 
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: ''
-      });
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: ''
+        });
 
-      if (sessionError) {
-        document.getElementById('error').textContent = sessionError.message;
-        return;
-      }
+        if (sessionError) {
+          document.getElementById('error').textContent = sessionError.message;
+          return;
+        }
 
-      const { error: updateError } = await supabase.auth.updateUser({ password: p1 });
+        const { error: updateError } = await supabase.auth.updateUser({ password: p1 });
 
-      if (updateError) {
-        document.getElementById('error').textContent = updateError.message;
-      } else {
-        document.getElementById('form-container').style.display = 'none';
-        document.getElementById('status').textContent = 'Password successfully updated. You can now log in.';
-      }
-    }
+        if (updateError) {
+          document.getElementById('error').textContent = updateError.message;
+        } else {
+          document.getElementById('form-container').style.display = 'none';
+          document.getElementById('status').textContent = 'Password successfully updated. You can now log in.';
+        }
+      };
+    });
   </script>
 </body>
 </html>
