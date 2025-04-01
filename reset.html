@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Reset Password – Waver</title>
+  <title>Reset Password – Waver (Debug Version)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
@@ -28,25 +28,36 @@
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
+      // Create Supabase client with your real project ID and anon key
       const client = window.supabase.createClient(
         'https://vfpcqlulhiwqjnwfxjof.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcGNxbHVsaGl3cWpud2Z4am9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDEzNjMsImV4cCI6MjA1NTAxNzM2M30.wvRniBlP_Ucn_rQ0fEid_YiT4VHf106zFbBu3wCIg-o'
       );
 
+      // Grab token from hash, e.g. https://waversurfing.com/reset.html#access_token=XYZ
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get('access_token');
 
-      document.getElementById('submitBtn').addEventListener('click', async () => {
-        const p1 = document.getElementById('password1').value;
-        const p2 = document.getElementById('password2').value;
-        const errorEl = document.getElementById('error');
-        const statusEl = document.getElementById('status');
+      const formContainer = document.getElementById('form-container');
+      const password1 = document.getElementById('password1');
+      const password2 = document.getElementById('password2');
+      const statusEl = document.getElementById('status');
+      const errorEl = document.getElementById('error');
 
+      // Log the token right away to confirm it's present
+      console.log('Debug: Found accessToken:', accessToken);
+
+      document.getElementById('submitBtn').addEventListener('click', async () => {
+        // Clear old messages
         errorEl.textContent = '';
         statusEl.textContent = '';
 
+        const p1 = password1.value;
+        const p2 = password2.value;
+
         if (!accessToken) {
           errorEl.textContent = 'Missing access token.';
+          console.log('Debug: No accessToken in URL hash');
           return;
         }
 
@@ -60,26 +71,34 @@
           return;
         }
 
-        const { error: sessionError } = await client.auth.setSession({
+        // Attempt to set the session with the token
+        const { data: sessionData, error: sessionError } = await client.auth.setSession({
           access_token: accessToken,
           refresh_token: ''
         });
 
-        if (sessionError) {
-          errorEl.textContent = sessionError.message;
+        console.log('Debug: setSession result:', sessionData, sessionError);
+
+        if (sessionError || !sessionData?.session) {
+          errorEl.textContent = sessionError?.message || 'Auth session missing!';
+          console.log('Debug: sessionError or no session data');
           return;
         }
 
+        // Attempt to update password
         const { error: updateError } = await client.auth.updateUser({ password: p1 });
+        console.log('Debug: updateUser error:', updateError);
 
         if (updateError) {
           errorEl.textContent = updateError.message;
         } else {
-          document.getElementById('form-container').style.display = 'none';
+          formContainer.style.display = 'none';
           statusEl.textContent = 'Password successfully updated. You can now log in.';
+          console.log('Debug: Password updated successfully');
         }
       });
     });
   </script>
 </body>
 </html>
+
