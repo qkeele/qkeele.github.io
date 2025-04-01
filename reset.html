@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>Reset Password – Waver</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body style="background-color: black; color: white; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-
   <h1 id="title">Resetting your password…</h1>
 
   <div id="form" style="display: none; flex-direction: column; align-items: center;">
@@ -24,8 +23,8 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcGNxbHVsaGl3cWpud2Z4am9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDEzNjMsImV4cCI6MjA1NTAxNzM2M30.wvRniBlP_Ucn_rQ0fEid_YiT4VHf106zFbBu3wCIg-o'
     );
 
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get("access_token");
+    const hash = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hash.get("access_token");
 
     const title = document.getElementById("title");
     const form = document.getElementById("form");
@@ -44,8 +43,8 @@
       });
 
       if (error || !data.session) {
-        title.textContent = "Could not restore session.";
         console.error("setSession error:", error);
+        title.textContent = "Could not restore session.";
         return;
       }
 
@@ -76,7 +75,7 @@
         } else {
           form.style.display = "none";
           title.textContent = "Password updated successfully.";
-          statusEl.textContent = "You can now log in with your new password.";
+          statusEl.textContent = "You can now log in.";
         }
       };
     }
