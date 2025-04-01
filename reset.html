@@ -18,7 +18,7 @@
   <div id="form-container" style="display: flex; flex-direction: column; align-items: center; width: 80%; max-width: 300px;">
     <input type="password" id="password1" placeholder="New Password" style="padding: 10px; font-size: 16px; width: 100%; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;">
     <input type="password" id="password2" placeholder="Confirm New Password" style="padding: 10px; font-size: 16px; width: 100%; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;">
-    <button onclick="resetPassword()" style="padding: 12px 20px; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;">
+    <button id="submitBtn" style="padding: 12px 20px; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;">
       Update Password
     </button>
   </div>
@@ -26,10 +26,9 @@
   <p id="status" style="margin-top: 20px; color: #10b981;"></p>
   <p id="error" style="margin-top: 10px; color: #ef4444;"></p>
 
-  <!-- Make sure Supabase is loaded before using it -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const supabase = supabase.createClient(
+    window.addEventListener('DOMContentLoaded', () => {
+      const supabaseClient = window.supabase.createClient(
         'https://vfpcqlulhiwqjnwfxjof.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcGNxbHVsaGl3cWpud2Z4am9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDEzNjMsImV4cCI6MjA1NTAxNzM2M30.wvRniBlP_Ucn_rQ0fEid_YiT4VHf106zFbBu3wCIg-o'
       );
@@ -37,44 +36,49 @@
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get('access_token');
 
-      window.resetPassword = async function () {
+      document.getElementById('submitBtn').addEventListener('click', async () => {
         const p1 = document.getElementById('password1').value;
         const p2 = document.getElementById('password2').value;
+        const errorEl = document.getElementById('error');
+        const statusEl = document.getElementById('status');
+
+        errorEl.textContent = '';
+        statusEl.textContent = '';
 
         if (!accessToken) {
-          document.getElementById('error').textContent = 'Missing access token.';
+          errorEl.textContent = 'Missing access token.';
           return;
         }
 
         if (!p1 || !p2) {
-          document.getElementById('error').textContent = 'Please enter both password fields.';
+          errorEl.textContent = 'Please enter both password fields.';
           return;
         }
 
         if (p1 !== p2) {
-          document.getElementById('error').textContent = 'Passwords do not match.';
+          errorEl.textContent = 'Passwords do not match.';
           return;
         }
 
-        const { error: sessionError } = await supabase.auth.setSession({
+        const { error: sessionError } = await supabaseClient.auth.setSession({
           access_token: accessToken,
           refresh_token: ''
         });
 
         if (sessionError) {
-          document.getElementById('error').textContent = sessionError.message;
+          errorEl.textContent = sessionError.message;
           return;
         }
 
-        const { error: updateError } = await supabase.auth.updateUser({ password: p1 });
+        const { error: updateError } = await supabaseClient.auth.updateUser({ password: p1 });
 
         if (updateError) {
-          document.getElementById('error').textContent = updateError.message;
+          errorEl.textContent = updateError.message;
         } else {
           document.getElementById('form-container').style.display = 'none';
-          document.getElementById('status').textContent = 'Password successfully updated. You can now log in.';
+          statusEl.textContent = 'Password successfully updated. You can now log in.';
         }
-      };
+      });
     });
   </script>
 </body>
