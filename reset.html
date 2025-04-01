@@ -2,117 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Reset Password – Waver (Debug Version)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset Password – Waver</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
-<body style="background-color: black; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; color: white; font-family: Arial, sans-serif;">
+<body style="background: black; color: white; font-family: Arial; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+  <h1 id="title">Resetting password…</h1>
 
-  <div style="position: absolute; top: 20px; width: 100%; text-align: center;">
-    <h1 style="margin: 0;">Reset Your Password</h1>
+  <div id="form" style="display: none; flex-direction: column; align-items: center;">
+    <input id="password1" type="password" placeholder="New Password" style="margin: 10px; padding: 10px;">
+    <input id="password2" type="password" placeholder="Confirm New Password" style="margin: 10px; padding: 10px;">
+    <button id="submit" style="padding: 10px 20px; background-color: #0284c7; color: white;">Update Password</button>
+    <p id="error" style="color: #f87171;"></p>
+    <p id="status" style="color: #34d399;"></p>
   </div>
-
-  <!-- Waver Logo -->
-  <img src="waverlogo.png" alt="Waver" width="200" height="200" style="margin-bottom: 20px;">
-
-  <div id="form-container" style="display: flex; flex-direction: column; align-items: center; width: 80%; max-width: 300px;">
-    <input
-      type="password"
-      id="password1"
-      placeholder="New Password"
-      style="padding: 10px; font-size: 16px; width: 100%; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;"
-    >
-    <input
-      type="password"
-      id="password2"
-      placeholder="Confirm New Password"
-      style="padding: 10px; font-size: 16px; width: 100%; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;"
-    >
-    <button
-      id="submitBtn"
-      style="padding: 12px 20px; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;"
-    >
-      Update Password
-    </button>
-  </div>
-
-  <p id="status" style="margin-top: 20px; color: #10b981;"></p>
-  <p id="error" style="margin-top: 10px; color: #ef4444;"></p>
 
   <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      // Create Supabase client with your actual project ID & anon key
-      const client = window.supabase.createClient(
-        'https://vfpcqlulhiwqjnwfxjof.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcGNxbHVsaGl3cWpud2Z4am9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDEzNjMsImV4cCI6MjA1NTAxNzM2M30.wvRniBlP_Ucn_rQ0fEid_YiT4VHf106zFbBu3wCIg-o'
-      );
+    const supabase = window.supabase.createClient(
+      'https://vfpcqlulhiwqjnwfxjof.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcGNxbHVsaGl3cWpud2Z4am9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDEzNjMsImV4cCI6MjA1NTAxNzM2M30.wvRniBlP_Ucn_rQ0fEid_YiT4VHf106zFbBu3wCIg-o'
+    );
 
-      // Grab the token from the query string: ?access_token=XYZ
-      const queryParams = new URLSearchParams(window.location.search);
-      const accessToken = queryParams.get('access_token');
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const type = params.get('type');
 
-      const formContainer = document.getElementById('form-container');
-      const password1 = document.getElementById('password1');
-      const password2 = document.getElementById('password2');
-      const statusEl = document.getElementById('status');
-      const errorEl = document.getElementById('error');
+    const title = document.getElementById('title');
+    const form = document.getElementById('form');
+    const errorEl = document.getElementById('error');
+    const statusEl = document.getElementById('status');
 
-      // Debug log
-      console.log('Debug: Found accessToken:', accessToken);
-
-      document.getElementById('submitBtn').addEventListener('click', async () => {
-        // Clear old messages
-        errorEl.textContent = '';
-        statusEl.textContent = '';
-
-        const p1 = password1.value;
-        const p2 = password2.value;
-
-        // Basic checks
-        if (!accessToken) {
-          errorEl.textContent = 'Missing access token.';
-          console.log('Debug: No accessToken in URL query');
+    async function start() {
+      if (type === 'recovery' && code) {
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error || !data.session) {
+          title.textContent = 'Could not restore session.';
+          console.error(error);
           return;
         }
 
-        if (!p1 || !p2) {
-          errorEl.textContent = 'Please enter both password fields.';
-          return;
-        }
+        title.textContent = 'Enter a new password';
+        form.style.display = 'flex';
 
-        if (p1 !== p2) {
-          errorEl.textContent = 'Passwords do not match.';
-          return;
-        }
+        document.getElementById('submit').onclick = async () => {
+          const p1 = document.getElementById('password1').value;
+          const p2 = document.getElementById('password2').value;
+          errorEl.textContent = '';
+          statusEl.textContent = '';
 
-        // Attempt to set the session with the token
-        const { data: sessionData, error: sessionError } = await client.auth.setSession({
-          access_token: accessToken,
-          refresh_token: ''
-        });
+          if (!p1 || !p2) {
+            errorEl.textContent = 'Both fields are required.';
+            return;
+          }
 
-        console.log('Debug: setSession result:', sessionData, sessionError);
+          if (p1 !== p2) {
+            errorEl.textContent = 'Passwords don’t match.';
+            return;
+          }
 
-        if (sessionError || !sessionData?.session) {
-          errorEl.textContent = sessionError?.message || 'Auth session missing!';
-          console.log('Debug: sessionError or no session data');
-          return;
-        }
+          const { error: updateError } = await supabase.auth.updateUser({ password: p1 });
 
-        // Attempt to update password
-        const { error: updateError } = await client.auth.updateUser({ password: p1 });
-        console.log('Debug: updateUser error:', updateError);
+          if (updateError) {
+            errorEl.textContent = updateError.message;
+          } else {
+            statusEl.textContent = 'Password updated. You can now log in.';
+            form.style.display = 'none';
+          }
+        };
+      } else {
+        title.textContent = 'Invalid reset link.';
+      }
+    }
 
-        if (updateError) {
-          errorEl.textContent = updateError.message;
-        } else {
-          formContainer.style.display = 'none';
-          statusEl.textContent = 'Password successfully updated. You can now log in.';
-          console.log('Debug: Password updated successfully');
-        }
-      });
-    });
+    start();
   </script>
 </body>
 </html>
-
