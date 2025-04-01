@@ -16,9 +16,22 @@
   <img src="waverlogo.png" alt="Waver" width="200" height="200" style="margin-bottom: 20px;">
 
   <div id="form-container" style="display: flex; flex-direction: column; align-items: center; width: 80%; max-width: 300px;">
-    <input type="password" id="password1" placeholder="New Password" style="padding: 10px; font-size: 16px; width: 100%; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;">
-    <input type="password" id="password2" placeholder="Confirm New Password" style="padding: 10px; font-size: 16px; width: 100%; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;">
-    <button id="submitBtn" style="padding: 12px 20px; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;">
+    <input
+      type="password"
+      id="password1"
+      placeholder="New Password"
+      style="padding: 10px; font-size: 16px; width: 100%; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;"
+    >
+    <input
+      type="password"
+      id="password2"
+      placeholder="Confirm New Password"
+      style="padding: 10px; font-size: 16px; width: 100%; margin-bottom: 10px; border-radius: 6px; border: none; text-align: center;"
+    >
+    <button
+      id="submitBtn"
+      style="padding: 12px 20px; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;"
+    >
       Update Password
     </button>
   </div>
@@ -28,15 +41,15 @@
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
-      // Create Supabase client with your real project ID and anon key
+      // Create Supabase client with your actual project ID & anon key
       const client = window.supabase.createClient(
         'https://vfpcqlulhiwqjnwfxjof.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcGNxbHVsaGl3cWpud2Z4am9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDEzNjMsImV4cCI6MjA1NTAxNzM2M30.wvRniBlP_Ucn_rQ0fEid_YiT4VHf106zFbBu3wCIg-o'
       );
 
-      // Grab token from hash, e.g. https://waversurfing.com/reset.html#access_token=XYZ
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hashParams.get('access_token');
+      // Grab the token from the query string: ?access_token=XYZ
+      const queryParams = new URLSearchParams(window.location.search);
+      const accessToken = queryParams.get('access_token');
 
       const formContainer = document.getElementById('form-container');
       const password1 = document.getElementById('password1');
@@ -44,7 +57,7 @@
       const statusEl = document.getElementById('status');
       const errorEl = document.getElementById('error');
 
-      // Log the token to ensure it's present
+      // Debug log
       console.log('Debug: Found accessToken:', accessToken);
 
       document.getElementById('submitBtn').addEventListener('click', async () => {
@@ -55,9 +68,10 @@
         const p1 = password1.value;
         const p2 = password2.value;
 
+        // Basic checks
         if (!accessToken) {
           errorEl.textContent = 'Missing access token.';
-          console.log('Debug: No accessToken in URL hash');
+          console.log('Debug: No accessToken in URL query');
           return;
         }
 
@@ -101,3 +115,4 @@
   </script>
 </body>
 </html>
+
