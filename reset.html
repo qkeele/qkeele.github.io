@@ -28,7 +28,7 @@
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
-      const supabaseClient = window.supabase.createClient(
+      const client = window.supabase.createClient(
         'https://vfpcqlulhiwqjnwfxjof.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmcGNxbHVsaGl3cWpud2Z4am9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0NDEzNjMsImV4cCI6MjA1NTAxNzM2M30.wvRniBlP_Ucn_rQ0fEid_YiT4VHf106zFbBu3wCIg-o'
       );
@@ -60,7 +60,7 @@
           return;
         }
 
-        const { error: sessionError } = await supabaseClient.auth.setSession({
+        const { error: sessionError } = await client.auth.setSession({
           access_token: accessToken,
           refresh_token: ''
         });
@@ -70,7 +70,7 @@
           return;
         }
 
-        const { error: updateError } = await supabaseClient.auth.updateUser({ password: p1 });
+        const { error: updateError } = await client.auth.updateUser({ password: p1 });
 
         if (updateError) {
           errorEl.textContent = updateError.message;
